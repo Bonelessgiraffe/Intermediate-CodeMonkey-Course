@@ -70,3 +70,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+CodeMonkeyCourse_KitchenChaos/Library/
+CodeMonkeyCourse_KitchenChaos/Temp/
+CodeMonkeyCourse_KitchenChaos/Assets/_Assets/
