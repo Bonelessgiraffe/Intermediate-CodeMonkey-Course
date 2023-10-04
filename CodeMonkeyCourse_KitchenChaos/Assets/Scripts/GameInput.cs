@@ -1,0 +1,24 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class GameInput : MonoBehaviour
+{
+    private PlayerInputActions playerInputActions;
+    private void Awake()
+    { 
+        // define the playerinput Action we created and then enable it
+        playerInputActions =  new PlayerInputActions();
+
+        playerInputActions.Player.Enable();
+    }
+    
+
+    public Vector2 GetMovementVectorNormalised()
+    {
+        Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
+
+        inputVector = inputVector.normalized;
+        return inputVector;
+    }
+}
