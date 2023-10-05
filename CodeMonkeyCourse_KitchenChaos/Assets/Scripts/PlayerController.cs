@@ -8,18 +8,70 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float rotSpeed = 10f;
     [SerializeField] private GameInput gameInput;
     private bool isWalking;
+    private Vector3 lastinteractDir;
+    [SerializeField] private LayerMask countersLayerMask;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        gameInput.OnInteractAction += GameInput_OnInteractAction;
+    }
+
+    private void GameInput_OnInteractAction(object sender, System.EventArgs e)
+    {
+        float interactDis = 2f;
+        Vector2 inputVector = gameInput.GetMovementVectorNormalised();
+        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y);
+
+        if (moveDir != Vector3.zero)
+        {
+            lastinteractDir = moveDir;
+        }
+
+        if (Physics.Raycast(transform.position, lastinteractDir, out RaycastHit raycasthit, interactDis, countersLayerMask))
+        {
+            if (raycasthit.transform.TryGetComponent(out ClearCounter clearCounter))
+            {
+                //Has clearcounter
+                clearCounter.Interact();
+            }
+        }
     }
 
     // Update is called once per frame
     private void Update()
     {
+        HandleMovement();
+        HandleInteractions();
+    }
+
+    private void HandleInteractions()
+    {
+        float interactDis = 2f;
         Vector2 inputVector = gameInput.GetMovementVectorNormalised();
-        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y) ;
+        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y);
+
+        if (moveDir != Vector3.zero)
+        {
+            lastinteractDir = moveDir;
+        }
+
+        if (Physics.Raycast(transform.position, lastinteractDir, out RaycastHit raycasthit, interactDis, countersLayerMask))
+        {
+          if (raycasthit.transform.TryGetComponent(out ClearCounter clearCounter))
+          {
+                //Has clearcounter
+                
+          }
+        }
+        
+        //raycast hit will contian the data about what it has hit
+    }
+    private void HandleMovement()
+    {
+        Vector2 inputVector = gameInput.GetMovementVectorNormalised();
+        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y);
 
         float playerRadius = 0.7f;
         float playerHeight = 2f;
@@ -27,7 +79,7 @@ public class PlayerController : MonoBehaviour
         //canMove is true if the raycast of player radius does not hit anything
 
         bool canMove = !Physics.CapsuleCast(transform.position, transform.position +
-            Vector3.up * playerHeight,  playerRadius, moveDir, moveDistance);
+            Vector3.up * playerHeight, playerRadius, moveDir, moveDistance);
 
         //to make diagonal movement work if one axis is blocked 
         if (!canMove)
@@ -64,12 +116,11 @@ public class PlayerController : MonoBehaviour
         }
         if (canMove)
         {
-            transform.position += moveDir * moveDistance; 
+            transform.position += moveDir * moveDistance;
         }
         isWalking = moveDir != Vector3.zero;
         transform.forward = Vector3.Slerp(transform.forward, moveDir, Time.deltaTime * rotSpeed);
     }
-
     public bool IsWalking()
     {
         return isWalking;
