@@ -1,3 +1,5 @@
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +14,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask countersLayerMask;
 
 
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter selectedCounter;
+    }
+    private ClearCounter selectedCounter;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,23 +28,11 @@ public class PlayerController : MonoBehaviour
 
     private void GameInput_OnInteractAction(object sender, System.EventArgs e)
     {
-        float interactDis = 2f;
-        Vector2 inputVector = gameInput.GetMovementVectorNormalised();
-        Vector3 moveDir = new Vector3(inputVector.x, 0, inputVector.y);
-
-        if (moveDir != Vector3.zero)
+        if (selectedCounter != null)
         {
-            lastinteractDir = moveDir;
+            selectedCounter.Interact();
         }
-
-        if (Physics.Raycast(transform.position, lastinteractDir, out RaycastHit raycasthit, interactDis, countersLayerMask))
-        {
-            if (raycasthit.transform.TryGetComponent(out ClearCounter clearCounter))
-            {
-                //Has clearcounter
-                clearCounter.Interact();
-            }
-        }
+       
     }
 
     // Update is called once per frame
@@ -62,9 +58,21 @@ public class PlayerController : MonoBehaviour
           if (raycasthit.transform.TryGetComponent(out ClearCounter clearCounter))
           {
                 //Has clearcounter
-                
+                if (clearCounter != selectedCounter)
+                {
+                    SetSelectedCounter(clearCounter);
+                }
           }
+          else
+            {
+                SetSelectedCounter(null);
+            }
         }
+        else
+        {
+            SetSelectedCounter(null);
+        }
+        
         
         //raycast hit will contian the data about what it has hit
     }
@@ -124,5 +132,14 @@ public class PlayerController : MonoBehaviour
     public bool IsWalking()
     {
         return isWalking;
+    }
+
+    private void SetSelectedCounter(ClearCounter selectedCounter)
+    {
+        this.selectedCounter = selectedCounter;
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs
+        {
+            selectedCounter = selectedCounter
+        });
     }
 }
