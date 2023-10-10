@@ -21,6 +21,17 @@ public class PlayerController : MonoBehaviour
     }
     private ClearCounter selectedCounter;
     // Start is called before the first frame update
+
+    public static PlayerController Instance;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.Log("there is more than one player instance");
+        }
+        Instance = this;
+    }
     void Start()
     {
         gameInput.OnInteractAction += GameInput_OnInteractAction;
@@ -67,7 +78,7 @@ public class PlayerController : MonoBehaviour
             {
                 SetSelectedCounter(null);
             }
-        }
+        } 
         else
         {
             SetSelectedCounter(null);
